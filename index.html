@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dermafix24 AI Concierge</title>
+    <style>
+        :root {
+            --primary-color: #0d9488;
+            /* Elegant Teal */
+            --primary-dark: #0f766e;
+            --bg-color: #f8fafc;
+            /* Crisp, clean clinic background */
+            --chat-bg: #ffffff;
+            --text-main: #1e293b;
+            /* Slate text */
+            --user-bubble: #ccfbf1;
+            /* Soft teal tint */
+            --ai-bubble: #f1f5f9;
+            /* Soft gray tint */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: var(--chat-bg);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .clinic-header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .clinic-header h2 {
+            margin: 0;
+            color: var(--primary-dark);
+            font-size: 24px;
+            letter-spacing: 0.5px;
+        }
+
+        .clinic-header p {
+            margin: 4px 0 0 0;
+            color: #64748b;
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        .config-section {
+            background: #f8fafc;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            border: 1px solid #edf2f7;
+        }
+
+        .config-section label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            white-space: nowrap;
+        }
+
+        input[type="password"] {
+            flex-grow: 1;
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .btn-secondary {
+            padding: 8px 14px;
+            background-color: #64748b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .btn-secondary:hover {
+            background-color: #475569;
+        }
+
+        .chat-box {
+            height: 400px;
+            border: 1px solid #e2e8f0;
+            padding: 16px;
+            overflow-y: auto;
+            border-radius: 12px;
+            background-color: #ffffff;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            margin-bottom: 14px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 85%;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .user-msg {
+            background-color: var(--user-bubble);
+            color: #115e59;
+            margin-left: auto;
+            border-bottom-right-radius: 2px;
+        }
+
+        .ai-msg {
+            background-color: var(--ai-bubble);
+            color: var(--text-main);
+            margin-right: auto;
+            border-bottom-left-radius: 2px;
+        }
+
+        /* Styling lists inside the AI response boxes */
+        .ai-msg ul,
+        .ai-msg ol {
+            margin: 6px 0;
+            padding-left: 20px;
+        }
+
+        .ai-msg li {
+            margin-bottom: 4px;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 12px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
+        }
+
+        .btn-primary {
+            padding: 12px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        #keyStatus {
+            font-size: 12px;
+            margin: 4px 0 0 0;
+            text-align: center;
+        }
+    </style>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/genai": "https://esm.run/@google/genai"
+        }
+      }
+    </script>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="clinic-header">
+            <h2>Dermafix24</h2>
+            <p>Refined Aesthetics. Trusted Expertise.</p>
+        </div>
+
+        <div class="config-section">
+            <label for="apiKey">Clinic API Config:</label>
+            <input type="password" id="apiKey" placeholder="Secure API access token...">
+            <button id="saveKeyBtn" class="btn-secondary">Link Key</button>
+        </div>
+        <p id="keyStatus"></p>
+
+        <div class="chat-box" id="chatBox">
+            <div class="message ai-msg">Welcome to <strong>Dermafix24</strong>. I am your digital concierge. How can I
+                assist you with our aesthetic and skin treatments today?</div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Ask about our skin, hair, laser treatments or timings...">
+            <button id="sendBtn" class="btn-primary">Send</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script type="module">
+        import { GoogleGenAI } from "@google/genai";
+
+        const chatBox = document.getElementById('chatBox');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const apiKeyInput = document.getElementById('apiKey');
+        const saveKeyBtn = document.getElementById('saveKeyBtn');
+        const keyStatus = document.getElementById('keyStatus');
+
+        if (localStorage.getItem('my_gemini_key')) {
+            apiKeyInput.value = localStorage.getItem('my_gemini_key');
+            keyStatus.style.color = "green";
+            keyStatus.textContent = "Secure handshake verified with local storage.";
+        }
+
+        saveKeyBtn.addEventListener('click', () => {
+            const key = apiKeyInput.value.trim();
+            if (key) {
+                localStorage.setItem('my_gemini_key', key);
+                keyStatus.style.color = "green";
+                keyStatus.textContent = "Key linked successfully and saved to local device memory.";
+            }
+        });
+
+        // ===================================================
+        // FIXED CHAT FUNCTION (NON-STREAMING & QUOTA SAVING)
+        // ===================================================
+        // ===================================================
+        // HIGH-VOLUME 1,500 RPD CHAT FUNCTION (GEMINI 1.5 FLASH)
+        // ===================================================
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            const apiKey = localStorage.getItem('my_gemini_key') || apiKeyInput.value.trim();
+
+            if (!apiKey) {
+                alert("Please link an API key first.");
+                return;
+            }
+            if (!text) return;
+
+            appendMessage(text, 'user-msg', false);
+            userInput.value = '';
+
+            const aiMessageDiv = appendMessage('Consulting database...', 'ai-msg', false);
+
+            try {
+                const ai = new GoogleGenAI({ apiKey: apiKey });
+
+                // Using the ultra-reliable gemini-1.5-flash model for high-frequency testing
+                const response = await ai.models.generateContent({
+                    model: 'gemini-2.5-flash-lite',
+                    contents: text,
+                    config: {
+                        systemInstruction: `You are the official AI Assistant Concierge for Dermafix24 clinic. Your tone is clean, premium, professional, and friendly.
+
+                    FORMATTING DIRECTIVE: 
+                    STRICT LENGTH & SUMMARIZATION RULES:
+1. NEVER list every single service all at once unless the user asks for a complete directory.
+2. If a user asks a broad question like "What treatments do you offer?", categorize them broadly and pick only 2-3 key highlights per category.
+3. Keep the total response under 30-50 words. Be punchy and scannable.
+4. Always end by asking them which specific category (Skin, Hair, Lasers, or IV Drips) they would like to know more about.
+                    - Avoid thick, heavy paragraphs. 
+                    - Whenever a user asks about services, benefits, clinical concerns, options, or lists, you MUST break down your answer into a highly organized, bulleted list using clean Markdown.
+                    - Bold critical terms using markdown double asterisks (e.g., **Chemical Peels**) to make the answers clean and easy to read.
+
+                    =========================================
+                    DERMAFIX24 COMPLETE KNOWLEDGE BASE:
+                    =========================================
+                    ## Organization
+                    - Name: Dermafix24
+                    - Tagline: Refined Aesthetics. Trusted Expertise.
+                    - Positioning: Advanced Aesthetic & Skin Treatments for Timeless Beauty
+                    - Core Values: Safe, Personalized, Professional
+
+                    ## Services
+                    ### Hair Treatments
+                    1. **Hair GFC (Growth Factor Concentrate)**: Reduces hair fall, stimulates hair regrowth.
+                    2. **EXO GFC**: Growth factors + exosome technology. Improves scalp healing and hair density.
+                    3. **Stem Cell Treatment**: Hair and skin regeneration, tissue repair.
+                    4. **QR678 Therapy**: Growth factor injection therapy that controls hair loss.
+                    5. **Exosome Therapy**: Supports collagen production, hair and skin rejuvenation.
+
+                    ### Skin Treatments
+                    Chemical Peels, Dermal Fillers, Botulinum Toxin (Botox), Face PRP, MNRF, Microneedling, Hydrafacial, Medi Facial, Yellow Peel, Skin Tag Removal, Mole Removal, Wart Removal, Vampire Facial, Anti-Aging Treatment, Under-Eye Rejuvenation, Double Chin Reduction, Skin Boosters.
+
+                    ### Laser Treatments
+                    Laser Hair Reduction, Carbon Facial, Laser Toning, Tattoo Removal, Q-Switch Laser.
+
+                    ### IV Drips
+                    Hydration Drip, Multivit Drip, Energy Drip, Immunity Drip, Detox Drip, Anti-Aging Drip, Hair Health Drip, Signature IV Drip.
+
+                    ## Clinical Solutions
+                    ### GFC Therapy
+                    - Definition: Uses purified growth factors from the patient's own blood.
+                    - Hair Benefits: Reduces hair fall, stimulates new hair growth, improves density, strengthens follicles.
+                    - Skin Benefits: Improves texture, improves glow, reduces wrinkles, skin rejuvenation.
+
+                    ### Chemical Peel
+                    - Used For: Acne, acne scars, pigmentation, melasma, uneven skin tone, aging skin.
+                    - Benefits: Brighter skin, reduced pigmentation, improved texture.
+
+                    ### PRP Therapy
+                    - Definition: Uses the patient's own blood platelets.
+                    - Hair Benefits: Reduces hair fall, stimulates dormant follicles, improves volume.
+                    - Skin Benefits: Improves skin quality, reduces fine lines, helps acne scars.
+
+                    ## FAQ
+                    - **Why choose us**: Dermatologist supervised, advanced USFDA-approved technology, hygienic customized plans.
+                    - **Safety & Downtime**: 100% safe. Minimal to no downtime for most procedures.
+                    - **Consultation**: Mandatory before any treatment recommendations.
+
+                    ## Contact Information
+                    Address: Shop Number 3, 1st Floor, Tamhane Complex, Kapil Malhar, Main Baner Road, Near Canara Bank, Baner, Pune, Maharashtra 411069
+                    Phone: +91 92705 11156
+                    Emails: dermafix24@gmail.com, concierge@dermafix24.clinic
+
+                    =========================================
+                    ## AI RESPONSE RULES & REGULATORY CONTROLS:
+                    1. Never diagnose medical conditions or give clinical prescriptions.
+                    2. Recommend consultation for personalized plans. 
+                    3. Do not promise guaranteed results; sessions vary per individual assessment.
+                    4. LEAD CAPTURE TRIGGER: If the user asks about price, cost, scheduling an appointment, or what the "best treatment" is for their condition, you must respond with: "Please book a consultation with Dermafix24 so a personalized treatment plan can be recommended."`
+                    }
+                });
+
+                // Display the well-formatted text all at once
+                aiMessageDiv.innerHTML = marked.parse(response.text);
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+            } catch (error) {
+                console.error("Clinic Bot Connection Error:", error);
+                aiMessageDiv.textContent = `Error connecting to database: ${error.message}`;
+            }
+        }
+
+        function appendMessage(text, className, parseMarkdown = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${className}`;
+            if (parseMarkdown) {
+                messageDiv.innerHTML = marked.parse(text);
+            } else {
+                messageDiv.textContent = text;
+            }
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            return messageDiv;
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'enter' || e.keyCode === 13) sendMessage();
+        });
+    </script>
+
+</body>
+
+</html>
