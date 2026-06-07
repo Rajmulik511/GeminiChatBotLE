@@ -41,6 +41,7 @@
             border-radius: 16px;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
             border: 1px solid #e2e8f0;
+            box-sizing: border-box;
         }
 
         .clinic-header {
@@ -123,6 +124,7 @@
             max-width: 85%;
             font-size: 14px;
             line-height: 1.5;
+            word-wrap: break-word;
         }
 
         .user-msg {
@@ -162,6 +164,7 @@
             border-radius: 8px;
             font-size: 14px;
             outline: none;
+            min-width: 0;
         }
 
         input[type="text"]:focus {
@@ -178,6 +181,7 @@
             cursor: pointer;
             font-weight: 600;
             font-size: 14px;
+            flex-shrink: 0;
         }
 
         .btn-primary:hover {
@@ -188,6 +192,67 @@
             font-size: 12px;
             margin: 4px 0 0 0;
             text-align: center;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 16px;
+                border-radius: 12px;
+            }
+
+            .clinic-header {
+                margin-bottom: 16px;
+                padding-bottom: 12px;
+            }
+
+            .clinic-header h2 {
+                font-size: 20px;
+            }
+
+            .config-section {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+                padding: 10px 12px;
+            }
+
+            .config-section label {
+                text-align: left;
+            }
+
+            .btn-secondary {
+                width: 100%;
+                padding: 10px;
+            }
+
+            .chat-box {
+                height: 50vh;
+                min-height: 300px;
+                padding: 12px;
+            }
+
+            .message {
+                max-width: 90%;
+                font-size: 13px;
+                padding: 10px 14px;
+            }
+
+            .input-area {
+                gap: 8px;
+            }
+
+            input[type="text"] {
+                padding: 10px 12px;
+            }
+
+            .btn-primary {
+                padding: 10px 16px;
+            }
         }
     </style>
 
@@ -224,6 +289,10 @@
             <input type="text" id="userInput" placeholder="Ask about our skin, hair, laser treatments or timings...">
             <button id="sendBtn" class="btn-primary">Send</button>
         </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 20px; font-size: 14px; color: #64748b;">
+        Developed by Raj
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
